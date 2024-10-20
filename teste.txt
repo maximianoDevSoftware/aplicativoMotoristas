@@ -1,0 +1,57 @@
+{estadoPagina === "Carregando" && (
+    <Container>
+      <CirculoLoading250 ref={loadingCircle}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle2}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle3}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle4}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <EstadoPagina>Carregando</EstadoPagina>
+    </Container>
+  )}
+  {estadoPagina === "Erro" && (
+    <Container>
+      <CirculoLoading250 ref={loadingCircle}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle2}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle3}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle4}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <EstadoPagina>
+        <Text>Erro ao fazer Login</Text>
+        <Text>Você será redirecionado em 3 segundos.</Text>
+      </EstadoPagina>
+    </Container>
+  )}
+  {estadoPagina === "Concluído" && (
+    <Container>
+      <CirculoLoading250 ref={loadingCircle}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle2}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle3}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <CirculoLoading250 ref={loadingCircle4}>
+        <BolaLoading></BolaLoading>
+      </CirculoLoading250>
+      <EstadoPagina>
+        <Text>Login efetuado com Sucesso!</Text>
+        <Text>Você será redirecionado em 2 segundos.</Text>
+      </EstadoPagina>
+    </Container>
+  )}

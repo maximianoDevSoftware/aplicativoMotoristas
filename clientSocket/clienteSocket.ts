@@ -5,7 +5,7 @@ let socket: Socket | null = null;
 
 const getSocket = () => {
   if (!socket) {
-    socket = io("http://192.168.0.127:3000"); // Substitua pela URL do seu servidor
+    socket = io("http://192.168.3.102:3000"); // Substitua pela URL do seu servidor
   }
   return socket;
 };

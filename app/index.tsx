@@ -1,95 +1,79 @@
-// Componente Formulário
-import React, { useEffect, useRef, useState } from "react";
-import {
-  Container,
-  Label,
-  Input,
-  StyledButton,
-  ButtonText,
-  ContainerFormulario,
-  CirculoLoading250,
-  BolaLoading,
-} from "./estiloIndex";
+import React, { useEffect, useState } from "react";
+import { Button, TextInput } from "react-native-paper";
 import getSocket from "@/clientSocket/clienteSocket";
-import anime from "animejs";
-import { Text } from "react-native";
+import { router } from "expo-router";
+import { View } from "react-native";
 
 const Form = () => {
-  const [usuario, setUsuario] = useState("");
+  const [userName, setUserName] = useState("");
   const [senha, setSenha] = useState("");
-  const [buttonActive, setButtonActive] = useState(false);
-
-  const [estadoPagina, setEstadoPagina] = useState("Carregando");
-  const loadingCircle = useRef(null);
-  const loadingCircle2 = useRef(null);
-  const loadingCircle3 = useRef(null);
-
+  const [loading, setLoading] = useState(false); // Estado para loading
   let socket = getSocket();
 
-  const handleSubmit = () => {
-    setButtonActive(true);
-    setTimeout(() => setButtonActive(false), 2000);
-    setEstadoPagina("Carregando");
-    socket.emit("Autenticar Usuario", { usuario, senha });
+  const autenticarUsuario = () => {
+    setLoading(true); // Ativando o loading
+    console.log(userName);
+    socket.emit("Autenticar Usuario", { userName, senha });
   };
 
   /***Processos de localização de rotas */
   useEffect(() => {
     socket.on("Usuario Autenticado", (usuarioAuth) => {
       console.log("Um usuário foi conectado pelo cliente");
+      setLoading(true);
       console.log(usuarioAuth);
+      setTimeout(() => {
+        router.push({
+          pathname: "/usuario",
+          params: { userName: usuarioAuth.userName },
+        });
+        setLoading(false); // Desativando o loading
+      }, 3000);
     });
     return () => {
       socket.off("Usuario Autenticado");
     };
   }, []);
 
-  /**Processos de animações em elementos */
-  useEffect(() => {
-    anime({
-      targets: [
-        loadingCircle.current,
-        loadingCircle2.current,
-        loadingCircle3.current,
-      ],
-      rotate: "1turn",
-      duration: 10000,
-      loop: true,
-      easing: "linear",
-    });
-  }, []);
-
   return (
     <>
-      {estadoPagina === "Disponível" && (
-        <Container>
-          <ContainerFormulario>
-            <Label>Usuario:</Label>
-
-            <Input value={usuario} onChangeText={setUsuario} />
-            <Label>Senha:</Label>
-            <Input value={senha} onChangeText={setSenha} />
-            <StyledButton
-              active={buttonActive}
-              onPress={handleSubmit}
-            ></StyledButton>
-          </ContainerFormulario>
-        </Container>
-      )}
-
-      {estadoPagina === "Carregando" && (
-        <Container>
-          <CirculoLoading250 ref={loadingCircle}>
-            <BolaLoading></BolaLoading>
-          </CirculoLoading250>
-          <CirculoLoading250 ref={loadingCircle2}>
-            <BolaLoading></BolaLoading>
-          </CirculoLoading250>
-          <CirculoLoading250 ref={loadingCircle3}>
-            <BolaLoading></BolaLoading>
-          </CirculoLoading250>
-        </Container>
-      )}
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <View
+          style={{
+            gap: 10,
+            backgroundColor: "white",
+            elevation: 5,
+            padding: 10,
+          }}
+        >
+          <TextInput
+            label="Nome do usuário:"
+            value={userName}
+            onChangeText={(text) => setUserName(text)}
+          />
+          <TextInput
+            label="Senha"
+            secureTextEntry
+            value={senha}
+            right={<TextInput.Icon icon="eye" />}
+            onChangeText={(text) => setSenha(text)}
+          />
+          <Button
+            style={{ width: 250, marginHorizontal: "auto" }}
+            mode="contained"
+            onPress={autenticarUsuario} // Desativando onPress se estiver carregando
+            loading={loading} // Estado de loading no botão
+          >
+            Autenticar Usuário
+          </Button>
+        </View>
+      </View>
     </>
   );
 };
