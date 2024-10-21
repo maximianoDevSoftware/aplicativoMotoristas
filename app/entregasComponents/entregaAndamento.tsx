@@ -2,6 +2,11 @@ import { entregasTipo } from "@/types/entregasTypes";
 import * as React from "react";
 import { Text, View } from "react-native";
 import { Button, List } from "react-native-paper";
+import {
+  atualizarEntregas,
+  localizarEntrega,
+  mensagemEntrega,
+} from "./entregasHooks";
 
 const EntregasAndamento = ({
   entregasLista,
@@ -14,6 +19,31 @@ const EntregasAndamento = ({
     setExpanded(expanded === id ? null : id);
   };
 
+  const enviarMensagem = async () => {
+    const mensagem = `
+      Sua entrega chegou!
+    `;
+
+    const contato = "554187280741";
+    const dadosMensagem = {
+      contato,
+      mensagem,
+    };
+    mensagemEntrega(dadosMensagem);
+  };
+
+  const enviarLocalizacao = async (entrega: entregasTipo) => {
+    const dadosMensagem = {
+      contato: "554187280741",
+      mensagem: "",
+    };
+    localizarEntrega(entrega, dadosMensagem);
+  };
+
+  React.useEffect(() => {
+    console.log(entregasLista);
+  }, [entregasLista]);
+
   return (
     <List.Accordion
       title="Entregas em Andamento"
@@ -21,6 +51,7 @@ const EntregasAndamento = ({
       style={{
         width: 300,
       }}
+      titleStyle={{ fontSize: 20 }}
     >
       {entregasLista?.map((cadaEntrega) => {
         const isExpanded = expanded === cadaEntrega.nome;
@@ -33,6 +64,9 @@ const EntregasAndamento = ({
               style={{
                 maxWidth: 300,
                 backgroundColor: isExpanded ? "#22333b" : "white",
+              }}
+              titleStyle={{
+                color: isExpanded ? "white" : "black",
               }}
               expanded={isExpanded}
               onPress={() => handlePress(cadaEntrega.nome)}
@@ -67,42 +101,52 @@ const EntregasAndamento = ({
                 style={{ backgroundColor: "#22333b" }}
               />
               <List.Item
-                titleStyle={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
                 style={{
                   backgroundColor: "#22333b",
-                  flex: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
                 title={
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      gap: 10,
-                      alignItems: "center",
-                    }}
-                  >
+                  <View style={{ gap: 10 }}>
                     <Button
                       mode="contained"
-                      style={{ width: 260, marginBottom: 20 }}
+                      style={{ width: 260 }}
+                      onPress={() => {
+                        enviarLocalizacao(cadaEntrega);
+                      }}
                     >
                       Localização da Entrega
                     </Button>
 
-                    <Button mode="contained" style={{ width: 260 }}>
+                    <Button
+                      mode="contained"
+                      style={{ width: 260 }}
+                      onPress={() => {
+                        enviarMensagem();
+                      }}
+                    >
                       Mensagem para o Cliente
                     </Button>
 
-                    <Button mode="contained" style={{ width: 260 }}>
+                    <Button
+                      mode="contained"
+                      style={{ width: 260 }}
+                      onPress={() => {
+                        let entregaUpdate = cadaEntrega;
+                        entregaUpdate.status = "Disponível";
+                        atualizarEntregas(entregaUpdate);
+                      }}
+                    >
                       Disponibilizar Entrega
                     </Button>
 
-                    <Button mode="contained" style={{ width: 260 }}>
+                    <Button
+                      mode="contained"
+                      style={{ width: 260 }}
+                      onPress={() => {
+                        let entregaUpdate = cadaEntrega;
+                        entregaUpdate.status = "Concluída";
+                        atualizarEntregas(entregaUpdate);
+                      }}
+                    >
                       Confirmar Entrega
                     </Button>
                   </View>

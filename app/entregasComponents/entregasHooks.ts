@@ -3,15 +3,29 @@ import { entregasTipo } from "@/types/entregasTypes";
 
 export function atualizarEntregas(entregaUpdate: entregasTipo) {
   const socket = getSocket();
+  console.log(entregaUpdate);
   socket.emit("Atualizar Entrega", entregaUpdate);
 }
 
-export function localizarEntrega() {
+export function localizarEntrega(
+  entrega: entregasTipo,
+  dadosMensagem: {
+    contato: string;
+    mensagem: string;
+  }
+) {
   const socket = getSocket();
-  socket.emit("Localizar Entrega");
+  const objetoEnvio = {
+    entrega,
+    dadosMensagem,
+  };
+  socket.emit("Localizacao Entrega", objetoEnvio);
 }
 
-export function mensagemEntrega() {
+export function mensagemEntrega(dadosMensagem: {
+  contato: string;
+  mensagem: string;
+}) {
   const socket = getSocket();
-  socket.emit("Mensagem Chegada Cliente");
+  socket.emit("Mensagem Chegada Cliente", dadosMensagem);
 }

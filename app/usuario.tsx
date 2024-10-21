@@ -7,6 +7,9 @@ import getSocket from "@/clientSocket/clienteSocket";
 import { entregasTipo } from "@/types/entregasTypes";
 import EntregasDia from "./entregasComponents/entregaComp";
 import EntregasAndamento from "./entregasComponents/entregaAndamento";
+import { ScrollView } from "react-native";
+
+let inicializador = false;
 
 const LocationComponent = () => {
   const [location, setLocation] =
@@ -28,7 +31,7 @@ const LocationComponent = () => {
   return (
     <View>
       {location ? (
-        <Text>
+        <Text style={{ textAlign: "center" }}>
           Latitude: {location.latitude}, Longitude: {location.longitude}
         </Text>
       ) : (
@@ -55,24 +58,54 @@ export default function UserScreen() {
   };
 
   useEffect(() => {
-    buscarEntregas();
+    if (!inicializador) {
+      inicializador = true;
+      buscarEntregas();
+    }
+    socket.on("Entregas Atualizadas", (todasEntregas) => {
+      setEntregasDoDia(todasEntregas);
+    });
+
+    return () => {
+      socket.off("Entregas Atualizadas");
+    };
   }, []);
 
   return (
-    <View style={{ flex: 1, alignItems: "center", overflow: "scroll" }}>
-      <Avatar.Image
-        size={200}
-        style={{
-          backgroundColor: "white",
-          borderColor: "black",
-          borderWidth: 2,
-          marginBottom: 10,
-        }}
-        source={require("../assets/logo.png")}
-      />
-      <Text style={{ fontSize: 25 }}>Bem-vindo, {userName}!</Text>
-      <EntregasDia entregasLista={entregasDoDia}></EntregasDia>
-      <EntregasAndamento entregasLista={entregasDoDia}></EntregasAndamento>
-    </View>
+    <ScrollView
+      style={{ width: "100%", height: "100%", backgroundColor: "white" }}
+    >
+      <View style={{ width: "100%", flex: 1, alignItems: "center" }}>
+        <Avatar.Image
+          size={200}
+          style={{
+            backgroundColor: "white",
+            borderColor: "black",
+            borderWidth: 2,
+            marginBottom: 10,
+          }}
+          source={require("../assets/logo.png")}
+        />
+        <Text style={{ fontSize: 25, marginBottom: 30 }}>
+          Bem-vindo, {userName}!
+        </Text>
+        <View
+          style={{ borderWidth: 2, borderColor: "black", borderRadius: 20 }}
+        >
+          <EntregasDia entregasLista={entregasDoDia}></EntregasDia>
+        </View>
+        <View
+          style={{
+            borderWidth: 2,
+            borderColor: "black",
+            borderRadius: 20,
+            marginTop: 30,
+          }}
+        >
+          <EntregasAndamento entregasLista={entregasDoDia}></EntregasAndamento>
+        </View>
+      </View>
+      {LocationComponent()}
+    </ScrollView>
   );
 }

@@ -3,6 +3,7 @@ import { Button, TextInput } from "react-native-paper";
 import getSocket from "@/clientSocket/clienteSocket";
 import { router } from "expo-router";
 import { View } from "react-native";
+import { black } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
 const Form = () => {
   const [userName, setUserName] = useState("");
@@ -39,17 +40,23 @@ const Form = () => {
     <>
       <View
         style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
           flex: 1,
-          alignItems: "center",
           justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#153a64",
         }}
       >
         <View
           style={{
             gap: 10,
             backgroundColor: "white",
-            elevation: 5,
             padding: 10,
+            width: 300,
+            height: 200,
+            position: "relative",
           }}
         >
           <TextInput
