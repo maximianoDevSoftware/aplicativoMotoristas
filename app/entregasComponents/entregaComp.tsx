@@ -15,15 +15,14 @@ const EntregasDia = ({
     setExpanded(expanded === id ? null : id);
   };
 
-  React.useEffect(() => {
-    console.log(entregasLista);
-  }, [entregasLista]);
+  React.useEffect(() => {}, [entregasLista]);
 
   return (
     <List.Accordion
       title="Entregas Disponíveis"
       description="Todas as entregas disponíveis no dia"
       style={{ width: 300 }}
+      titleStyle={{ fontSize: 20 }}
     >
       {entregasLista?.map((cadaEntrega) => {
         const isExpanded = expanded === cadaEntrega.nome;

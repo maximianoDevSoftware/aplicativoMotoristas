@@ -3,7 +3,7 @@ import { Button, TextInput } from "react-native-paper";
 import getSocket from "@/clientSocket/clienteSocket";
 import { router } from "expo-router";
 import { View } from "react-native";
-import { black } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
+import { usuarioTipo } from "@/types/userTypes";
 
 const Form = () => {
   const [userName, setUserName] = useState("");
@@ -19,18 +19,25 @@ const Form = () => {
 
   /***Processos de localização de rotas */
   useEffect(() => {
-    socket.on("Usuario Autenticado", (usuarioAuth) => {
+    socket.on("Usuario Autenticado", (usuarioAuth: usuarioTipo) => {
       console.log("Um usuário foi conectado pelo cliente");
       setLoading(true);
       console.log(usuarioAuth);
+
+      const usuarioAuthWithStringLocation = {
+        ...usuarioAuth,
+        localizacao: JSON.stringify(usuarioAuth.localizacao), // Transformando em JSON string
+      };
+
       setTimeout(() => {
         router.push({
           pathname: "/usuario",
-          params: { userName: usuarioAuth.userName },
+          params: usuarioAuthWithStringLocation,
         });
         setLoading(false); // Desativando o loading
       }, 3000);
     });
+
     return () => {
       socket.off("Usuario Autenticado");
     };

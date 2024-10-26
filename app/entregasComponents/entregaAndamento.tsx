@@ -40,9 +40,7 @@ const EntregasAndamento = ({
     localizarEntrega(entrega, dadosMensagem);
   };
 
-  React.useEffect(() => {
-    console.log(entregasLista);
-  }, [entregasLista]);
+  React.useEffect(() => {}, [entregasLista]);
 
   return (
     <List.Accordion

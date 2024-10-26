@@ -8,24 +8,44 @@ import { entregasTipo } from "@/types/entregasTypes";
 import EntregasDia from "./entregasComponents/entregaComp";
 import EntregasAndamento from "./entregasComponents/entregaAndamento";
 import { ScrollView } from "react-native";
+import { usuarioTipo } from "@/types/userTypes";
 
 let inicializador = false;
+const socket = getSocket();
 
-const LocationComponent = () => {
+const LocationComponent = (usuarioLogado: usuarioTipo) => {
   const [location, setLocation] =
     useState<Location.LocationObjectCoords | null>(null);
 
   useEffect(() => {
-    (async () => {
+    let interval: NodeJS.Timeout | undefined;
+
+    const getLocation = async () => {
+      console.log("Pegando localização");
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         console.log("Permission to access location was denied");
         return;
       }
-
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location.coords);
-    })();
+
+      /**Verificando se o usuário está logado, então eu consigo atualizar os valores de suas cooredenadas e repassar ao usuario */
+      if (usuarioLogado) {
+        console.log(usuarioLogado.localizacao.latitude);
+        usuarioLogado.localizacao.latitude = location.coords.latitude;
+        console.log(usuarioLogado.localizacao.latitude);
+        usuarioLogado.localizacao.longitude = location.coords.longitude;
+
+        socket.emit("Localizar Entregador", usuarioLogado);
+      }
+    };
+    getLocation(); // Fetch initial location
+    interval = setInterval(getLocation, 5000); // Fetch location every 30 seconds
+
+    return () => {
+      if (interval) clearInterval(interval); // Clean up on unmount
+    };
   }, []);
 
   return (
@@ -42,19 +62,20 @@ const LocationComponent = () => {
 };
 
 export default function UserScreen() {
-  const { userName } = useLocalSearchParams();
+  const usuarioRecebidoRota = useLocalSearchParams<{ [key: string]: string }>();
+  const usuarioAuth: usuarioTipo = {
+    userName: usuarioRecebidoRota.userName,
+    status: usuarioRecebidoRota.status,
+    localizacao: JSON.parse(usuarioRecebidoRota.localizacao || "{}"), // Parseando de volta para objeto
+    senha: usuarioRecebidoRota.senha,
+  };
   const [entregasDoDia, setEntregasDoDia] = useState<entregasTipo[] | null>(
     null
   );
 
-  const socket = getSocket();
-
   const buscarEntregas = () => {
     console.log("Buscar entregas está sendo chamada");
-    socket.emit("Buscar Entregas", (todasEntregas: entregasTipo[]) => {
-      console.log(todasEntregas);
-      setEntregasDoDia(todasEntregas);
-    });
+    socket.emit("Buscar Entregas");
   };
 
   useEffect(() => {
@@ -62,12 +83,13 @@ export default function UserScreen() {
       inicializador = true;
       buscarEntregas();
     }
-    socket.on("Entregas Atualizadas", (todasEntregas) => {
+    socket.on("Atualizando entregas", (todasEntregas) => {
       setEntregasDoDia(todasEntregas);
     });
 
     return () => {
       socket.off("Entregas Atualizadas");
+      socket.off("Atualizando entregas");
     };
   }, []);
 
@@ -87,7 +109,7 @@ export default function UserScreen() {
           source={require("../assets/logo.png")}
         />
         <Text style={{ fontSize: 25, marginBottom: 30 }}>
-          Bem-vindo, {userName}!
+          Bem-vindo, {usuarioAuth.userName}!
         </Text>
         <View
           style={{ borderWidth: 2, borderColor: "black", borderRadius: 20 }}
@@ -105,7 +127,7 @@ export default function UserScreen() {
           <EntregasAndamento entregasLista={entregasDoDia}></EntregasAndamento>
         </View>
       </View>
-      {LocationComponent()}
+      {LocationComponent(usuarioAuth)}
     </ScrollView>
   );
 }
