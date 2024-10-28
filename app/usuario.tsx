@@ -9,57 +9,13 @@ import EntregasDia from "./entregasComponents/entregaComp";
 import EntregasAndamento from "./entregasComponents/entregaAndamento";
 import { ScrollView } from "react-native";
 import { usuarioTipo } from "@/types/userTypes";
+import * as locExpo from "expo-location";
+import * as TaskManager from "expo-task-manager";
+import PermissionsButton from "./entregasComponents/localizaComponent";
+import LocationComponent from "./entregasComponents/localizaComponent";
 
 let inicializador = false;
 const socket = getSocket();
-
-const LocationComponent = (usuarioLogado: usuarioTipo) => {
-  const [location, setLocation] =
-    useState<Location.LocationObjectCoords | null>(null);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
-
-    const getLocation = async () => {
-      console.log("Pegando localização");
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission to access location was denied");
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location.coords);
-
-      /**Verificando se o usuário está logado, então eu consigo atualizar os valores de suas cooredenadas e repassar ao usuario */
-      if (usuarioLogado) {
-        console.log(usuarioLogado.localizacao.latitude);
-        usuarioLogado.localizacao.latitude = location.coords.latitude;
-        console.log(usuarioLogado.localizacao.latitude);
-        usuarioLogado.localizacao.longitude = location.coords.longitude;
-
-        socket.emit("Localizar Entregador", usuarioLogado);
-      }
-    };
-    getLocation(); // Fetch initial location
-    interval = setInterval(getLocation, 5000); // Fetch location every 30 seconds
-
-    return () => {
-      if (interval) clearInterval(interval); // Clean up on unmount
-    };
-  }, []);
-
-  return (
-    <View>
-      {location ? (
-        <Text style={{ textAlign: "center" }}>
-          Latitude: {location.latitude}, Longitude: {location.longitude}
-        </Text>
-      ) : (
-        <Text>Obtendo localização...</Text>
-      )}
-    </View>
-  );
-};
 
 export default function UserScreen() {
   const usuarioRecebidoRota = useLocalSearchParams<{ [key: string]: string }>();
@@ -127,7 +83,8 @@ export default function UserScreen() {
           <EntregasAndamento entregasLista={entregasDoDia}></EntregasAndamento>
         </View>
       </View>
-      {LocationComponent(usuarioAuth)}
+      {LocationComponent()}
+      <PermissionsButton></PermissionsButton>
     </ScrollView>
   );
 }
